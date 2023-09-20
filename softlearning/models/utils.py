@@ -23,8 +23,7 @@ def get_inputs_for_nested_shapes(input_shapes, name=None):
 
 
 def flatten_input_structure(inputs):
-    inputs_flat = tree.flatten(inputs)
-    return inputs_flat
+    return tree.flatten(inputs)
 
 
 def create_input(path, shape, dtype=None):
@@ -38,13 +37,7 @@ def create_input(path, shape, dtype=None):
                  if len(shape) == 3 and shape[-1] in (1, 3)
                  else tf.float32)  # Non-image
 
-    input_ = tf.keras.layers.Input(
-        shape=shape,
-        name=name,
-        dtype=dtype
-    )
-
-    return input_
+    return tf.keras.layers.Input(shape=shape, name=name, dtype=dtype)
 
 
 def create_inputs(shapes, dtypes=None):
@@ -62,9 +55,7 @@ def create_inputs(shapes, dtypes=None):
     """
     if dtypes is None:
         dtypes = tree.map_structure(lambda _: None, shapes)
-    inputs = tree.map_structure_with_path(create_input, shapes, dtypes)
-
-    return inputs
+    return tree.map_structure_with_path(create_input, shapes, dtypes)
 
 
 def create_sequence_inputs(shapes, dtypes=None):
@@ -78,6 +69,4 @@ def create_sequence_inputs(shapes, dtypes=None):
         `tf.keras.layers.Input`s, each with shape (None, ...).
     """
     shapes = tree.map_structure(lambda x: tf.TensorShape([None]) + x, shapes)
-    sequence_inputs = create_inputs(shapes, dtypes)
-
-    return sequence_inputs
+    return create_inputs(shapes, dtypes)

@@ -32,9 +32,7 @@ def get_mujoco_zip_name(platform, version):
     else:
         raise ValueError(platform)
 
-    # For example: "mujoco200_linux.zip"
-    zip_name = f"{basename}{version.replace('.', '')}_{platform_id}.zip"
-    return zip_name
+    return f"{basename}{version.replace('.', '')}_{platform_id}.zip"
 
 
 def install_mujoco(platform, version, mujoco_path):

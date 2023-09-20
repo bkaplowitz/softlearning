@@ -18,8 +18,7 @@ class FakeEnvironment(gym.Env):
         self.action_space = self.observation_space
 
     def reset(self):
-        observation = self.observation_space.sample()
-        return observation
+        return self.observation_space.sample()
 
     def step(self, action):
         observation = action * np.ones(self.observation_space.shape)

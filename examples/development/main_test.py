@@ -108,7 +108,7 @@ class TestExperimentRunner(tf.test.TestCase):
         initial_policy_weights = experiment_runner.policy.get_weights()
         initial_Qs_weights = [Q.get_weights() for Q in experiment_runner.Qs]
 
-        for i in range(10):
+        for _ in range(10):
             experiment_runner.train()
 
         self.assertEqual(experiment_runner.algorithm._epoch, 9)
@@ -240,9 +240,7 @@ class TestExperimentRunner(tf.test.TestCase):
                 print(f"i: {i}; j: {j}; {key};"
                       f" {allclose}; {variable_1_name}; {variable_2_name}")
 
-                if 'target_Q' in key:
-                    pass
-                else:
+                if 'target_Q' not in key:
                     np.testing.assert_allclose(variable_1_np, variable_2_np)
 
         # for optimizer_key in optimizer_variables_1_np.keys():
@@ -258,14 +256,11 @@ class TestExperimentRunner(tf.test.TestCase):
             target_Q_variables_tf = trainable_variables_2[f'target_Q{i}']
             target_Q_variables_np = trainable_variables_2_np[f'target_Q{i}']
 
-            for j, (Q_np, target_Q_np, Q_tf, target_Q_tf) in enumerate(
-                    zip(Q_variables_np, target_Q_variables_np,
-                        Q_variables_tf, target_Q_variables_tf)):
+            for Q_np, target_Q_np, Q_tf, target_Q_tf in zip(Q_variables_np, target_Q_variables_np,
+                        Q_variables_tf, target_Q_variables_tf):
                 allclose = np.allclose(Q_np, target_Q_np)
                 Q_name = Q_tf.name
                 target_Q_name = target_Q_tf.name
-
-                # print(f"i: {i}; {allclose}; {Q_name}; {target_Q_name}")
 
         self.assertEqual(experiment_runner_2.algorithm._epoch, 10)
         self.assertEqual(experiment_runner_2.algorithm._timestep, 0)
@@ -273,7 +268,7 @@ class TestExperimentRunner(tf.test.TestCase):
             experiment_runner_2.algorithm._alpha.numpy(),
             expected_alpha_value)
 
-        for i in range(10):
+        for _ in range(10):
             experiment_runner_2.train()
 
         self.assertEqual(experiment_runner_2.algorithm._epoch, 19)
@@ -300,7 +295,7 @@ class TestExperimentRunner(tf.test.TestCase):
         checkpoints = []
         while (experiment_runner.replay_pool.size
                < experiment_runner.replay_pool._max_size):
-            for i in range(10):
+            for _ in range(10):
                 experiment_runner.train()
             checkpoints.append(experiment_runner.save())
 
@@ -345,7 +340,7 @@ class TestExperimentRunner(tf.test.TestCase):
         self.assertEqual(experiment_runner.replay_pool.size, 0)
         self.assertEqual(experiment_runner.algorithm._alpha.numpy(), 1.0)
 
-        for i in range(2):
+        for _ in range(2):
             experiment_runner.train()
 
     def test_uses_training_env_as_evaluation_env(self):
@@ -369,7 +364,7 @@ class TestExperimentRunner(tf.test.TestCase):
         self.assertEqual(experiment_runner.replay_pool.size, 0)
         self.assertEqual(experiment_runner.algorithm._alpha.numpy(), 1.0)
 
-        for i in range(2):
+        for _ in range(2):
             experiment_runner.train()
 
 

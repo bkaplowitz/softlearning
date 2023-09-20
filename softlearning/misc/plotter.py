@@ -29,12 +29,12 @@ class QFPolicyPlotter:
             ax.grid(True)
             self._ax_lst.append(ax)
 
-        self._line_objects = list()
+        self._line_objects = []
 
     def draw(self):
         # noinspection PyArgumentList
         [h.remove() for h in self._line_objects]
-        self._line_objects = list()
+        self._line_objects = []
 
         self._plot_level_curves()
         self._plot_action_samples()

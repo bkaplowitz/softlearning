@@ -622,7 +622,7 @@ class FlexibleReplayPoolTest(unittest.TestCase):
                 self.assertEqual(
                     values.shape, (other_step_indices.size, sequence_length, 1))
 
-        for field_key in samples.keys():
+        for field_key in samples:
             np.testing.assert_equal(
                 (other_step_batch['mask'][0, :path_lengths[0], None]
                 * other_step_batch[field_key][0][:path_lengths[0]]),

@@ -60,7 +60,7 @@ class RandomStrategyValidator(StrategyValidator):
 
 class FinalStrategyValidator(StrategyValidator):
     def verify_batch(self, batch):
-        if 0 < np.sum(batch['resampled']):
+        if np.sum(batch['resampled']) > 0:
             where_resampled = np.flatnonzero(batch['resampled'])
             np.testing.assert_equal(
                 batch['resampled_distances'][where_resampled],
@@ -70,7 +70,7 @@ class FinalStrategyValidator(StrategyValidator):
 
 class EpisodeStrategyValidator(StrategyValidator):
     def verify_batch(self, batch):
-        if 0 < np.sum(batch['resampled']):
+        if np.sum(batch['resampled']) > 0:
             where_resampled = np.flatnonzero(batch['resampled'])
 
             gt_first_index = (
@@ -87,7 +87,7 @@ class EpisodeStrategyValidator(StrategyValidator):
 
 class FutureStrategyValidator(StrategyValidator):
     def verify_batch(self, batch):
-        if 0 < np.sum(batch['resampled']):
+        if np.sum(batch['resampled']) > 0:
             where_resampled = np.flatnonzero(batch['resampled'])
             assert np.all(batch['resampled_distances'][where_resampled] >= 0)
             assert np.all(
@@ -163,7 +163,7 @@ class TestHindsightExperienceReplayPool():
 
             pool.add_path(samples)
 
-        for i in range(100):
+        for _ in range(100):
             random_batch = pool.random_batch(256)
             strategy_validator.verify_batch(random_batch)
 

@@ -80,8 +80,7 @@ class BaseValueFunction:
         args_, kwargs_ = tree.map_structure(
             lambda x: x[None, ...], (args, kwargs))
         values = self.values(*args_, **kwargs_)
-        value = tree.map_structure(lambda x: x[0], values)
-        return value
+        return tree.map_structure(lambda x: x[0], values)
 
     def _filter_observations(self, observations):
         if (isinstance(observations, dict)
@@ -94,8 +93,7 @@ class BaseValueFunction:
 
     def get_diagnostics(self, *inputs):
         """Return loggable diagnostic information of the value function."""
-        diagnostics = OrderedDict()
-        return diagnostics
+        return OrderedDict()
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -119,13 +117,11 @@ class StateValueFunction(BaseValueFunction):
     def values(self, observations, **kwargs):
         """Compute values given observations."""
         observations = self._filter_observations(observations)
-        values = self.model(observations, **kwargs)
-        return values
+        return self.model(observations, **kwargs)
 
 
 class StateActionValueFunction(BaseValueFunction):
     def values(self, observations, actions, **kwargs):
         """Compute values given observations."""
         observations = self._filter_observations(observations)
-        values = self.model((observations, actions), **kwargs)
-        return values
+        return self.model((observations, actions), **kwargs)

@@ -342,12 +342,13 @@ class SQL(RLAlgorithm):
 
         policy_losses = self._update_policy(batch['observations'])
 
-        diagnostics = OrderedDict((
-            ('Q_value-mean', tf.reduce_mean(Qs_values)),
-            ('Q_loss-mean', tf.reduce_mean(Qs_losses)),
-            ('policy_loss-mean', tf.reduce_mean(policy_losses)),
-        ))
-        return diagnostics
+        return OrderedDict(
+            (
+                ('Q_value-mean', tf.reduce_mean(Qs_values)),
+                ('Q_loss-mean', tf.reduce_mean(Qs_losses)),
+                ('policy_loss-mean', tf.reduce_mean(policy_losses)),
+            )
+        )
 
     def _do_training(self, iteration, batch):
         """Runs the operations for updating training and target ops."""

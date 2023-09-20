@@ -122,8 +122,7 @@ class BasePolicy:
         args_, kwargs_ = tree.map_structure(
             lambda x: x[None, ...], (args, kwargs))
         actions = self.actions(*args_, **kwargs_)
-        action = tree.map_structure(lambda x: x[0], actions)
-        return action
+        return tree.map_structure(lambda x: x[0], actions)
 
     @abc.abstractmethod
     def log_probs(self, inputs, actions):
@@ -135,8 +134,7 @@ class BasePolicy:
         args_, kwargs_ = tree.map_structure(
             lambda x: x[None, ...], (args, kwargs))
         log_probs = self.log_probs(*args_, **kwargs_)
-        log_prob = tree.map_structure(lambda x: x[0], log_probs)
-        return log_prob
+        return tree.map_structure(lambda x: x[0], log_probs)
 
     def actions_and_log_probs(self, *args, **kwargs):
         """Compute actions for given inputs (e.g. observations)."""
@@ -154,8 +152,7 @@ class BasePolicy:
         args_, kwargs_ = tree.map_structure(
             lambda x: x[None, ...], (args, kwargs))
         probs = self.probs(*args_, **kwargs_)
-        prob = tree.map_structure(lambda x: x[0], probs)
-        return prob
+        return tree.map_structure(lambda x: x[0], probs)
 
     @contextmanager
     def evaluation_mode(self):
@@ -207,32 +204,29 @@ class BasePolicy:
         Returns:
             diagnostics: OrderedDict of diagnostic information.
         """
-        diagnostics = OrderedDict()
-        return diagnostics
+        return OrderedDict()
 
     def get_diagnostics_np(self, *args, **kwargs):
         diagnostics = self.get_diagnostics(*args, **kwargs)
-        diagnostics_np = tree.map_structure(lambda x: x.numpy(), diagnostics)
-        return diagnostics_np
+        return tree.map_structure(lambda x: x.numpy(), diagnostics)
 
     def get_config(self):
-        config = {
+        return {
             'input_shapes': self._input_shapes,
             'output_shape': self._output_shape,
             'observation_keys': self._observation_keys,
             'preprocessors': tree.map_structure(
-                preprocessors_lib.serialize, self._preprocessors),
+                preprocessors_lib.serialize, self._preprocessors
+            ),
             'name': self._name,
         }
-        return config
 
     def _updated_config(self):
         config = self.get_config()
-        model_config = {
+        return {
             'class_name': self.__class__.__name__,
             'config': config,
         }
-        return model_config
 
     def to_yaml(self, **kwargs):
         if yaml is None:
@@ -273,12 +267,11 @@ class ContinuousPolicy(BasePolicy):
 
     def get_config(self):
         base_config = super(ContinuousPolicy, self).get_config()
-        config = {
+        return {
             **base_config,
             'action_range': self._action_range,
             'squash': self._squash,
         }
-        return config
 
 
 class LatentSpacePolicy(ContinuousPolicy):
@@ -287,7 +280,7 @@ class LatentSpacePolicy(ContinuousPolicy):
 
         assert smoothing_coefficient is None or 0 <= smoothing_coefficient <= 1
 
-        if smoothing_coefficient is not None and 0 < smoothing_coefficient:
+        if smoothing_coefficient is not None and smoothing_coefficient > 0:
             raise NotImplementedError(
                 "TODO(hartikainen): Latent smoothing temporarily dropped on tf2"
                 " migration. Should add it back. See:"
@@ -309,8 +302,7 @@ class LatentSpacePolicy(ContinuousPolicy):
 
     def get_config(self):
         base_config = super(LatentSpacePolicy, self).get_config()
-        config = {
+        return {
             **base_config,
             'smoothing_coefficient': self._smoothing_coefficient,
         }
-        return config

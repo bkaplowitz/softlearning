@@ -47,7 +47,7 @@ def get_variant_spec(args):
     algorithm = args.algorithm
 
     layer_size = 128
-    variant_spec = {
+    return {
         'layer_size': layer_size,
         'policy_params': {
             'class_name': 'FeedforwardGaussianPolicy',
@@ -58,7 +58,7 @@ def get_variant_spec(args):
         },
         'algorithm_params': deep_update(
             ALGORITHM_PARAMS_BASE,
-            ALGORITHM_PARAMS_ADDITIONAL.get(algorithm, {})
+            ALGORITHM_PARAMS_ADDITIONAL.get(algorithm, {}),
         ),
         'Q_params': {
             'class_name': 'double_feedforward_Q_function',
@@ -70,5 +70,3 @@ def get_variant_spec(args):
             'seed': 1,
         },
     }
-
-    return variant_spec

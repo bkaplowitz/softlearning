@@ -59,13 +59,12 @@ class ImageForkReacher2dEnv(ImagePusher2dEnv):
 
     def compute_reward(self, observations, actions):
         is_batch = True
-        if observations.ndim == 1:
-            observations = observations[None]
-            actions = actions[None]
-            is_batch = False
-        else:
+        if observations.ndim != 1:
             raise NotImplementedError('Might be broken.')
 
+        observations = observations[None]
+        actions = actions[None]
+        is_batch = False
         arm_pos = observations[:, -6:-4]
         goal_pos = self.get_body_com('goal')[:2][None]
         object_pos = observations[:, -3:-1]

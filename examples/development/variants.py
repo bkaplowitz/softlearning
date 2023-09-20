@@ -370,20 +370,13 @@ def get_max_path_length(universe, domain, task):
 def get_checkpoint_frequency(spec):
     num_checkpoints = 10
     config = spec.get('config', spec)
-    checkpoint_frequency = (
-        config
-        ['algorithm_params']
-        ['config']
-        ['n_epochs']
+    return (
+        config['algorithm_params']['config']['n_epochs']
     ) // num_checkpoints
-
-    return checkpoint_frequency
 
 
 def get_policy_params(spec):
-    # config = spec.get('config', spec)
-    policy_params = GAUSSIAN_POLICY_PARAMS_BASE.copy()
-    return policy_params
+    return GAUSSIAN_POLICY_PARAMS_BASE.copy()
 
 
 def get_total_timesteps(universe, domain, task):
@@ -404,7 +397,7 @@ def get_algorithm_params(universe, domain, task):
     epoch_length = get_epoch_length(universe, domain, task)
     n_epochs = total_timesteps / epoch_length
     assert n_epochs == int(n_epochs), (n_epochs, total_timesteps, epoch_length)
-    algorithm_params = {
+    return {
         'config': {
             'n_epochs': int(n_epochs),
             'epoch_length': epoch_length,
@@ -413,15 +406,13 @@ def get_algorithm_params(universe, domain, task):
         }
     }
 
-    return algorithm_params
-
 
 def get_environment_params(universe, domain, task):
-    environment_params = (
-        ENVIRONMENT_PARAMS_PER_UNIVERSE_DOMAIN_TASK
-        .get(universe, {}).get(domain, {}).get(task, {}))
-
-    return environment_params
+    return (
+        ENVIRONMENT_PARAMS_PER_UNIVERSE_DOMAIN_TASK.get(universe, {})
+        .get(domain, {})
+        .get(task, {})
+    )
 
 
 def get_variant_spec_base(universe, domain, task, policy, algorithm):
@@ -430,9 +421,8 @@ def get_variant_spec_base(universe, domain, task, policy, algorithm):
         ALGORITHM_PARAMS_ADDITIONAL.get(algorithm, {}),
         get_algorithm_params(universe, domain, task),
     )
-    variant_spec = {
+    return {
         'git_sha': get_git_rev(__file__),
-
         'environment_params': {
             'training': {
                 'domain': domain,
@@ -440,11 +430,11 @@ def get_variant_spec_base(universe, domain, task, policy, algorithm):
                 'universe': universe,
                 'kwargs': get_environment_params(universe, domain, task),
             },
-            'evaluation': tune.sample_from(lambda spec: (
-                spec.get('config', spec)
-                ['environment_params']
-                ['training']
-            )),
+            'evaluation': tune.sample_from(
+                lambda spec: (
+                    spec.get('config', spec)['environment_params']['training']
+                )
+            ),
         },
         # 'policy_params': tune.sample_from(get_policy_params),
         'policy_params': {
@@ -459,12 +449,13 @@ def get_variant_spec_base(universe, domain, task, policy, algorithm):
         'exploration_policy_params': {
             'class_name': 'ContinuousUniformPolicy',
             'config': {
-                'observation_keys': tune.sample_from(lambda spec: (
-                    spec.get('config', spec)
-                    ['policy_params']
-                    ['config']
-                    .get('observation_keys')
-                ))
+                'observation_keys': tune.sample_from(
+                    lambda spec: (
+                        spec.get('config', spec)['policy_params'][
+                            'config'
+                        ].get('observation_keys')
+                    )
+                )
             },
         },
         'Q_params': {
@@ -479,36 +470,35 @@ def get_variant_spec_base(universe, domain, task, policy, algorithm):
         'replay_pool_params': {
             'class_name': 'SimpleReplayPool',
             'config': {
-                'max_size': tune.sample_from(lambda spec: (
-                    min(int(1e6),
-                        spec.get('config', spec)
-                        ['algorithm_params']
-                        ['config']
-                        ['n_epochs']
-                        * spec.get('config', spec)
-                        ['algorithm_params']
-                        ['config']
-                        ['epoch_length'])
-                )),
+                'max_size': tune.sample_from(
+                    lambda spec: (
+                        min(
+                            int(1e6),
+                            spec.get('config', spec)['algorithm_params'][
+                                'config'
+                            ]['n_epochs']
+                            * spec.get('config', spec)['algorithm_params'][
+                                'config'
+                            ]['epoch_length'],
+                        )
+                    )
+                ),
             },
         },
         'sampler_params': {
             'class_name': 'SimpleSampler',
             'config': {
                 'max_path_length': get_max_path_length(universe, domain, task),
-            }
+            },
         },
         'run_params': {
             'host_name': get_host_name(),
-            'seed': tune.sample_from(
-                lambda spec: np.random.randint(0, 10000)),
+            'seed': tune.sample_from(lambda spec: np.random.randint(0, 10000)),
             'checkpoint_at_end': True,
             'checkpoint_frequency': tune.sample_from(get_checkpoint_frequency),
             'checkpoint_replay_pool': False,
         },
     }
-
-    return variant_spec
 
 
 def is_image_env(universe, domain, task, variant_spec):

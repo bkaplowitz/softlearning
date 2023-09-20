@@ -15,9 +15,7 @@ def parse_args():
         '--sync-checkpoints', action='store_true', default=False)
     parser.add_argument(
         '--dry', action='store_true', default=False)
-    args = parser.parse_args()
-
-    return args
+    return parser.parse_args()
 
 
 def sync_gs(args):

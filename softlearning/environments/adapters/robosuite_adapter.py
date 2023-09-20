@@ -16,13 +16,18 @@ ROBOSUITE_ENVIRONMENTS = {}
 def convert_robosuite_to_gym_obs_space(robosuite_observation_space):
     assert isinstance(robosuite_observation_space, OrderedDict), type(
         robosuite_observation_space)
-    list_dict = []
-    for key, value in robosuite_observation_space.items():
-        list_dict.append((key, spaces.Box(
-            low=-float("inf"),
-            high=float("inf"),
-            shape=value.shape,
-            dtype=value.dtype)))
+    list_dict = [
+        (
+            key,
+            spaces.Box(
+                low=-float("inf"),
+                high=float("inf"),
+                shape=value.shape,
+                dtype=value.dtype,
+            ),
+        )
+        for key, value in robosuite_observation_space.items()
+    ]
     return spaces.Dict(OrderedDict(list_dict))
 
 
@@ -102,8 +107,8 @@ class RobosuiteAdapter(SoftlearningEnv):
 
         if len(action_space.shape) > 1:
             raise NotImplementedError(
-                "Shape of the action space ({}) is not flat, make sure to"
-                " check the implemenation.".format(action_space))
+                f"Shape of the action space ({action_space}) is not flat, make sure to check the implemenation."
+            )
 
         self._action_space = action_space
 
@@ -141,14 +146,12 @@ class RobosuiteAdapter(SoftlearningEnv):
             if camera_id is not None:
                 camera_name = self.sim.model.camera_id2name(camera_id)
 
-            pixels = self._env.sim.render(
+            return self._env.sim.render(
                 camera_name=camera_name or self._env.camera_name,
                 width=width or self._env.camera_width,
                 height=height or self._env.camera_height,
-                depth=depth or self._env.camera_depth
+                depth=depth or self._env.camera_depth,
             )[::-1]
-            return pixels
-
         raise NotImplementedError(mode)
 
     def seed(self, *args, **kwargs):
@@ -177,11 +180,9 @@ class RobosuiteAdapter(SoftlearningEnv):
         return self._env
 
     def __getstate__(self):
-        state = {
-            key: value for key, value in self.__dict__.items()
-            if key != '_env'
+        return {
+            key: value for key, value in self.__dict__.items() if key != '_env'
         }
-        return state
 
     def __setstate__(self, state):
         self.__dict__ = state

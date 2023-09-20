@@ -125,8 +125,8 @@ class GymAdapter(SoftlearningEnv):
 
         if len(self._env.action_space.shape) > 1:
             raise NotImplementedError(
-                "Shape of the action space ({}) is not flat, make sure to"
-                " check the implemenation.".format(self._env.action_space))
+                f"Shape of the action space ({self._env.action_space}) is not flat, make sure to check the implemenation."
+            )
 
         self._action_space = self._env.action_space
 

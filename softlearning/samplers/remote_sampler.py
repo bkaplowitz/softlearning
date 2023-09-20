@@ -15,14 +15,6 @@ class RemoteSampler(BaseSampler):
         raise NotImplementedError(
             "TODO(hartikainen): There's a bug here that causes tf to end up in"
             " a RecursionError. This should be fixed/refactored before usage.")
-        super(RemoteSampler, self).__init__(**kwargs)
-
-        self._remote_environment = None
-        self._remote_path = None
-        self._n_episodes = 0
-        self._total_samples = 0
-        self._last_path_return = 0
-        self._max_path_return = -np.inf
 
     def _create_remote_environment(self, env, policy):
         env_pkl = pickle.dumps(env)
@@ -74,24 +66,23 @@ class RemoteSampler(BaseSampler):
             self._n_episodes += 1
 
     def get_diagnostics(self):
-        diagnostics = OrderedDict({
-            'max-path-return': self._max_path_return,
-            'last-path-return': self._last_path_return,
-            'pool-size': self.pool.size,
-            'episodes': self._n_episodes,
-            'total-samples': self._total_samples,
-        })
-
-        return diagnostics
+        return OrderedDict(
+            {
+                'max-path-return': self._max_path_return,
+                'last-path-return': self._last_path_return,
+                'pool-size': self.pool.size,
+                'episodes': self._n_episodes,
+                'total-samples': self._total_samples,
+            }
+        )
 
     def __getstate__(self):
         super_state = super(RemoteSampler, self).__getstate__()
-        state = {
-            key: value for key, value in super_state.items()
+        return {
+            key: value
+            for key, value in super_state.items()
             if key not in ('_remote_environment', '_remote_path')
         }
-
-        return state
 
     def __setstate__(self, state):
         super(RemoteSampler, self).__setstate__(state)
@@ -119,6 +110,4 @@ class _RemoteEnv(object):
 
     def rollout(self, policy_weights, path_length):
         self._policy.set_weights(policy_weights)
-        path = rollout(self._env, self._policy, path_length)
-
-        return path
+        return rollout(self._env, self._policy, path_length)

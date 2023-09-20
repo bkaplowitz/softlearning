@@ -28,7 +28,7 @@ class GoalSampler(SimpleSampler):
             key: full_observation[key]
             for key, value in self.policy.goal_keys
         }
-        processed_observation = {
+        return {
             'observations': observation,
             'actions': action,
             'rewards': [reward],
@@ -37,5 +37,3 @@ class GoalSampler(SimpleSampler):
             'goals': goal,
             'infos': info,
         }
-
-        return processed_observation

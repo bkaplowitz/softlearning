@@ -20,18 +20,21 @@ def feedforward_model(hidden_layer_sizes,
                       *args,
                       **kwargs):
     output_size = tf.reduce_prod(output_shape)
-    if 1 < len(output_shape):
+    if len(output_shape) > 1:
         raise NotImplementedError("TODO(hartikainen)")
-    model = tf.keras.Sequential((
-        tfkl.Lambda(cast_and_concat),
-        *[
+    return tf.keras.Sequential(
+        (
+            tfkl.Lambda(cast_and_concat),
+            *[
+                tf.keras.layers.Dense(
+                    hidden_layer_size, *args, activation=activation, **kwargs
+                )
+                for hidden_layer_size in hidden_layer_sizes
+            ],
             tf.keras.layers.Dense(
-                hidden_layer_size, *args, activation=activation, **kwargs)
-            for hidden_layer_size in hidden_layer_sizes
-        ],
-        tf.keras.layers.Dense(
-            output_size, *args, activation=output_activation, **kwargs),
-        # tf.keras.layers.Reshape(output_shape),
-    ), name=name)
-
-    return model
+                output_size, *args, activation=output_activation, **kwargs
+            ),
+            # tf.keras.layers.Reshape(output_shape),
+        ),
+        name=name,
+    )

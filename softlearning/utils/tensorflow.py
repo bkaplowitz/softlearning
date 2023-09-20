@@ -3,8 +3,7 @@ import tree
 
 
 def set_gpu_memory_growth(growth):
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    if gpus:
+    if gpus := tf.config.experimental.list_physical_devices('GPU'):
         try:
             # Currently, memory growth needs to be the same across GPUs
             for gpu in gpus:
@@ -19,14 +18,13 @@ def set_gpu_memory_growth(growth):
 
 def apply_preprocessors(preprocessors, inputs):
     tree.assert_same_structure(inputs, preprocessors)
-    preprocessed_inputs = tree.map_structure(
+    return tree.map_structure(
         lambda preprocessor, input_: (
-            preprocessor(input_) if preprocessor is not None else input_),
+            preprocessor(input_) if preprocessor is not None else input_
+        ),
         preprocessors,
         inputs,
     )
-
-    return preprocessed_inputs
 
 
 def cast_and_concat(x):

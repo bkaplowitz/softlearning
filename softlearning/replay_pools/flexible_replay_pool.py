@@ -56,10 +56,7 @@ class FlexibleReplayPool(ReplayPool):
 
     def _initialize_field(self, field):
         field_shape = (self._max_size, *field.shape)
-        field_values = field.initializer(
-            field_shape, dtype=field.dtype)
-
-        return field_values
+        return field.initializer(field_shape, dtype=field.dtype)
 
     def _advance(self, count=1):
         """Handles bookkeeping after adding samples to the pool.
@@ -195,9 +192,9 @@ class FlexibleReplayPool(ReplayPool):
         if field_name_filter is not None:
             raise NotImplementedError("TODO(hartikainen)")
 
-        batch = tree.map_structure(
-            lambda field: field[indices % self._max_size], self.data)
-        return batch
+        return tree.map_structure(
+            lambda field: field[indices % self._max_size], self.data
+        )
 
     def sequence_batch_by_indices(self,
                                   indices,

@@ -156,13 +156,12 @@ class ForkReacherEnv(Pusher2dEnv):
 
     def compute_reward(self, observations, actions):
         is_batch = True
-        if observations.ndim == 1:
-            observations = observations[None]
-            actions = actions[None]
-            is_batch = False
-        else:
+        if observations.ndim != 1:
             raise NotImplementedError('Might be broken.')
 
+        observations = observations[None]
+        actions = actions[None]
+        is_batch = False
         arm_pos = observations[:, -8:-6]
         goal_pos = observations[:, -2:]
         object_pos = observations[:, -5:-3]
@@ -237,7 +236,4 @@ class ForkReacherEnv(Pusher2dEnv):
 
     def _get_obs(self):
         super_observation = super(ForkReacherEnv, self)._get_obs()
-        observation = np.concatenate([
-            super_observation, self.get_body_com('goal')[:2]
-        ])
-        return observation
+        return np.concatenate([super_observation, self.get_body_com('goal')[:2]])

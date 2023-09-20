@@ -98,9 +98,7 @@ class ExperimentRunner(tune.Trainable):
         if self.train_generator is None:
             self.train_generator = self.algorithm.train()
 
-        diagnostics = next(self.train_generator)
-
-        return diagnostics
+        return next(self.train_generator)
 
     @staticmethod
     def _pickle_path(checkpoint_dir):

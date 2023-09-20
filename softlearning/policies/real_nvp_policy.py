@@ -40,7 +40,7 @@ class RealNVPPolicy(LatentSpacePolicy):
 
     @tf.function(experimental_relax_shapes=True)
     def actions(self, observations):
-        if 0 < self._smoothing_alpha:
+        if self._smoothing_alpha > 0:
             raise NotImplementedError(
                 "TODO(hartikainen): Smoothing alpha temporarily dropped on tf2"
                 " migration. Should add it back. See:"
@@ -49,34 +49,26 @@ class RealNVPPolicy(LatentSpacePolicy):
         observations = self._filter_observations(observations)
 
         batch_shape = tf.shape(tree.flatten(observations)[0])[:-1]
-        actions = self.action_distribution.sample(
-            batch_shape, bijector_kwargs={
-                self.flow_model.name: {'observations': observations}
-            })
-
-        return actions
+        return self.action_distribution.sample(
+            batch_shape,
+            bijector_kwargs={self.flow_model.name: {'observations': observations}},
+        )
 
     @tf.function(experimental_relax_shapes=True)
     def log_probs(self, observations, actions):
         observations = self._filter_observations(observations)
-        log_probs = self.action_distribution.log_prob(
+        return self.action_distribution.log_prob(
             actions,
-            bijector_kwargs={
-                self.flow_model.name: {'observations': observations}
-            })[..., tf.newaxis]
-
-        return log_probs
+            bijector_kwargs={self.flow_model.name: {'observations': observations}},
+        )[..., tf.newaxis]
 
     @tf.function(experimental_relax_shapes=True)
     def probs(self, observations, actions):
         observations = self._filter_observations(observations)
-        probs = self.action_distribution.prob(
+        return self.action_distribution.prob(
             actions,
-            bijector_kwargs={
-                self.flow_model.name: {'observations': observations}
-            })[..., tf.newaxis]
-
-        return probs
+            bijector_kwargs={self.flow_model.name: {'observations': observations}},
+        )[..., tf.newaxis]
 
     def get_weights(self):
         return self.flow_model.get_weights()

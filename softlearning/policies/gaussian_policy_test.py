@@ -150,7 +150,7 @@ class GaussianPolicyTest(tf.test.TestCase):
             / (1.0 - smoothed_policy._smoothing_alpha))
 
         smoothing_x_previous = smoothed_policy._smoothing_x
-        for i in range(5):
+        for _ in range(5):
             action_np = smoothed_policy.action(observation_np).numpy()
             observation_np = self.env.step(action_np)[0]
 

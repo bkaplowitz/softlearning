@@ -35,9 +35,7 @@ class BaseSampler(object):
         if n is None:
             n = self._store_last_n_paths
 
-        last_n_paths = tuple(islice(self._last_n_paths, None, n))
-
-        return last_n_paths
+        return tuple(islice(self._last_n_paths, None, n))
 
     def sample(self):
         raise NotImplementedError
@@ -46,24 +44,23 @@ class BaseSampler(object):
         self.environment.close()
 
     def get_diagnostics(self):
-        diagnostics = OrderedDict({'pool-size': self.pool.size})
-        return diagnostics
+        return OrderedDict({'pool-size': self.pool.size})
 
     def __getstate__(self):
-        state = {
-            key: value for key, value in self.__dict__.items()
-            if key not in (
-                    'environment',
-                    'policy',
-                    'pool',
-                    '_last_n_paths',
-                    '_current_observation',
-                    '_current_path',
-                    '_is_first_step',
+        return {
+            key: value
+            for key, value in self.__dict__.items()
+            if key
+            not in (
+                'environment',
+                'policy',
+                'pool',
+                '_last_n_paths',
+                '_current_observation',
+                '_current_path',
+                '_is_first_step',
             )
         }
-
-        return state
 
     def __setstate__(self, state):
         self.__dict__.update(state)

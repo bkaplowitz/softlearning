@@ -5,8 +5,7 @@ from .goal_replay_pool import GoalReplayPool
 
 
 def random_int_with_variable_range(mins, maxs):
-    result = np.floor(np.random.uniform(mins, maxs)).astype(int)
-    return result
+    return np.floor(np.random.uniform(mins, maxs)).astype(int)
 
 
 class ResamplingReplayPool(GoalReplayPool):
@@ -72,20 +71,19 @@ class ResamplingReplayPool(GoalReplayPool):
                 resample_indices[where_same_episode]
                 - indices[where_same_episode]
             )[..., None]
-        else:
-            if resampling_strategy == 'final':
-                resample_indices = episode_last_indices
-                resample_distances = episode_last_distances
-            elif resampling_strategy == 'episode':
-                resample_distances = random_int_with_variable_range(
-                    episode_first_distances, episode_last_distances)
-                resample_indices = (
-                    indices + resample_distances[..., 0])
-            elif resampling_strategy == 'future':
-                resample_distances = random_int_with_variable_range(
-                    0, episode_last_distances)
-                resample_indices = (
-                    indices + resample_distances[..., 0])
+        elif resampling_strategy == 'final':
+            resample_indices = episode_last_indices
+            resample_distances = episode_last_distances
+        elif resampling_strategy == 'episode':
+            resample_distances = random_int_with_variable_range(
+                episode_first_distances, episode_last_distances)
+            resample_indices = (
+                indices + resample_distances[..., 0])
+        elif resampling_strategy == 'future':
+            resample_distances = random_int_with_variable_range(
+                0, episode_last_distances)
+            resample_indices = (
+                indices + resample_distances[..., 0])
 
         resample_indices %= self._size
 

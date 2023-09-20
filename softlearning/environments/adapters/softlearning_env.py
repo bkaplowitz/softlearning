@@ -66,11 +66,10 @@ class SoftlearningEnv(metaclass=ABCMeta):
         if not isinstance(self.observation_space, spaces.Dict):
             raise NotImplementedError(type(self.observation_space))
 
-        observation_shape = tree.map_structure(
+        return tree.map_structure(
             lambda space: tf.TensorShape(space.shape),
-            self.observation_space.spaces)
-
-        return observation_shape
+            self.observation_space.spaces,
+        )
 
     @property
     def action_space(self, *args, **kwargs):
@@ -86,8 +85,8 @@ class SoftlearningEnv(metaclass=ABCMeta):
 
         if len(action_shape) > 1:
             raise NotImplementedError(
-                "Shape of the action space ({}) is not flat, make sure to"
-                " check the implemenation.".format(self.action_space))
+                f"Shape of the action space ({self.action_space}) is not flat, make sure to check the implemenation."
+            )
 
         return action_shape
 
@@ -227,17 +226,16 @@ class SoftlearningEnv(metaclass=ABCMeta):
         for path in paths:
             for info_key, info_values in path.get('infos', {}).items():
                 info_values = np.array(info_values)
-                results[info_key + '-first'].append(info_values[0])
-                results[info_key + '-last'].append(info_values[-1])
-                results[info_key + '-mean'].append(np.mean(info_values))
-                results[info_key + '-median'].append(np.median(info_values))
+                results[f'{info_key}-first'].append(info_values[0])
+                results[f'{info_key}-last'].append(info_values[-1])
+                results[f'{info_key}-mean'].append(np.mean(info_values))
+                results[f'{info_key}-median'].append(np.median(info_values))
                 if np.array(info_values).dtype != np.dtype('bool'):
-                    results[info_key + '-range'].append(np.ptp(info_values))
+                    results[f'{info_key}-range'].append(np.ptp(info_values))
 
-        aggregated_results = {}
-        for key, value in results.items():
-            aggregated_results[key + '-mean'] = np.mean(value)
-
+        aggregated_results = {
+            f'{key}-mean': np.mean(value) for key, value in results.items()
+        }
         if hasattr(self.unwrapped, 'get_path_infos'):
             env_path_infos = self.unwrapped.get_path_infos(
                 paths, *args, **kwargs)

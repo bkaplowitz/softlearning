@@ -53,9 +53,9 @@ class FeedforwardBijectorFunction(tf.Module):
         shift, log_scale = tf.keras.layers.Lambda(
             lambda x: tf.split(x, 2, axis=-1)
         )(shift_and_log_scale)
-        bijector = bijectors.affine_scalar.AffineScalar(
-            shift=shift, log_scale=log_scale)
-        return bijector
+        return bijectors.affine_scalar.AffineScalar(
+            shift=shift, log_scale=log_scale
+        )
 
 
 class RealNVPFlow(bijectors.Bijector):
@@ -157,9 +157,9 @@ class RealNVPFlow(bijectors.Bijector):
             if isinstance(bijector, bijectors.RealNVP)
         }
 
-        fldj = self.flow.forward_log_det_jacobian(
-            x, event_ndims=1, **condition_kwargs)
-        return fldj
+        return self.flow.forward_log_det_jacobian(
+            x, event_ndims=1, **condition_kwargs
+        )
 
     def _inverse_log_det_jacobian(self, y, **condition_kwargs):
         if not self._built:
@@ -171,6 +171,6 @@ class RealNVPFlow(bijectors.Bijector):
             if isinstance(bijector, bijectors.RealNVP)
         }
 
-        ildj = self.flow.inverse_log_det_jacobian(
-            y, event_ndims=1, **condition_kwargs)
-        return ildj
+        return self.flow.inverse_log_det_jacobian(
+            y, event_ndims=1, **condition_kwargs
+        )

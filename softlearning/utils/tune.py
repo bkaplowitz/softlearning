@@ -81,11 +81,9 @@ def is_experiment_directory(root_dir):
         return False
 
     root, directories, files = next(os.walk(root_dir))
-    # 1) experiment_state.json exists -> is experiment
-    experiment_state_paths = glob.glob(
-        os.path.join(root, "experiment_state*.json"))
-
-    if experiment_state_paths:
+    if experiment_state_paths := glob.glob(
+        os.path.join(root, "experiment_state*.json")
+    ):
         # TODO(hartikainen): This needs to be fixed. In general, a directory
         # can have multiple experiment state files. Softlearning experiment
         # directories shouldn't though.
@@ -93,12 +91,13 @@ def is_experiment_directory(root_dir):
         return True
 
     # 2) All the subfolders are trials -> is experiment
-    if directories and all(
+    return bool(
+        directories
+        and all(
             is_trial_directory(os.path.join(root, directory))
-            for directory in directories):
-        return True
-
-    return False
+            for directory in directories
+        )
+    )
 
 
 def find_all_experiment_directories(root_dir):
@@ -113,12 +112,13 @@ def find_all_experiment_directories(root_dir):
         return (root_dir, )
 
     directories = next(os.walk(root_dir))[1]
-    all_experiment_directories = sum((
-        find_all_experiment_directories(os.path.join(root_dir, directory))
-        for directory in directories
-    ), ())
-
-    return all_experiment_directories
+    return sum(
+        (
+            find_all_experiment_directories(os.path.join(root_dir, directory))
+            for directory in directories
+        ),
+        (),
+    )
 
 
 def find_all_trial_directories(experiment_dir):
@@ -133,10 +133,8 @@ def find_all_trial_directories(experiment_dir):
     experiment_dir = os.path.expanduser(experiment_dir)
     directories = next(os.walk(experiment_dir))[1]
 
-    all_trial_directories = [
+    return [
         os.path.join(experiment_dir, directory)
         for directory in directories
         if is_trial_directory(os.path.join(experiment_dir, directory))
     ]
-
-    return all_trial_directories

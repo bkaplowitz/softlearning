@@ -151,8 +151,7 @@ def unique_cluster_name(args):
         args.domain,
         args.task
     )
-    cluster_name = "-".join(cluster_name_parts).lower()
-    return cluster_name
+    return "-".join(cluster_name_parts).lower()
 
 
 def get_experiments_info(experiments):
@@ -165,12 +164,10 @@ def get_experiments_info(experiments):
     }
     total_number_of_trials = sum(number_of_trials.values())
 
-    experiments_info = {
+    return {
         "number_of_trials": number_of_trials,
         "total_number_of_trials": total_number_of_trials,
     }
-
-    return experiments_info
 
 
 def confirm_yes_no(prompt):
@@ -268,15 +265,15 @@ def run_example_debug(example_module_name, example_argv):
         debug_args.trial_cpus = available_cpus
 
     if 'server_port' in debug_args:
-        print(f"Ignoring 'server_port' due to debug mode.")
+        print("Ignoring 'server_port' due to debug mode.")
     debug_args.server_port = None
 
     if 'max_failures' in debug_args:
-        print(f"Ignoring 'max_failures' due to debug mode.")
+        print("Ignoring 'max_failures' due to debug mode.")
     debug_args.max_failures = 0
 
     if 'upload_dir' in debug_args:
-        print(f"Ignoring 'upload_dir' due to debug mode.")
+        print("Ignoring 'upload_dir' due to debug mode.")
     debug_args.upload_dir = None
 
     debug_args.fail_fast = True
@@ -318,7 +315,7 @@ def run_example_cluster(example_module_name, example_argv):
 
     experiment_kwargs = generate_experiment_kwargs(variant_spec, example_args)
 
-    address = ray.services.get_node_ip_address() + ':6379'
+    address = f'{ray.services.get_node_ip_address()}:6379'
 
     ray.init(
         address=address,

@@ -12,19 +12,15 @@ class UniformPolicyMixin:
         first_input_rank = tf.size(tree.flatten(self._input_shapes)[0])
         batch_shape = tf.shape(first_observation)[:-first_input_rank]
 
-        actions = self.distribution.sample(batch_shape)
-
-        return actions
+        return self.distribution.sample(batch_shape)
 
     @tf.function(experimental_relax_shapes=True)
     def log_probs(self, observations, actions):
-        log_probs = self.distribution.log_prob(actions)[..., tf.newaxis]
-        return log_probs
+        return self.distribution.log_prob(actions)[..., tf.newaxis]
 
     @tf.function(experimental_relax_shapes=True)
     def probs(self, observations, actions):
-        probs = self.distribution.prob(actions)[..., tf.newaxis]
-        return probs
+        return self.distribution.prob(actions)[..., tf.newaxis]
 
 
 class ContinuousUniformPolicy(UniformPolicyMixin, ContinuousPolicy):

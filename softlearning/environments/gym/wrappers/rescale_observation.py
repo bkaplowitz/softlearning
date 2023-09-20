@@ -26,26 +26,26 @@ class RescaleObservation(gym.ObservationWrapper):
         """
         if np.any(~np.isfinite((low, high))):
             raise ValueError(
-                "Arguments 'low' and 'high' need to be finite."
-                " Got: low={}, high={}".format(low, high))
+                f"Arguments 'low' and 'high' need to be finite. Got: low={low}, high={high}"
+            )
 
         if np.any(high <= low):
-            raise ValueError("Argument `low` must be smaller than `high`"
-                             " Got: low={}, high=".format(low, high))
+            raise ValueError(
+                f"Argument `low` must be smaller than `high` Got: low={low}, high="
+            )
 
         super(RescaleObservation, self).__init__(env)
 
         if not isinstance(env.observation_space, spaces.Box):
-            raise TypeError("Expected Box observation space. Got: {}"
-                            "".format(type(env.observation_space)))
+            raise TypeError(
+                f"Expected Box observation space. Got: {type(env.observation_space)}"
+            )
 
         if np.any(~np.isfinite((
                 env.observation_space.low, env.observation_space.high))):
             raise ValueError(
-                "Observation space 'low' and 'high' need to be finite."
-                " Got: observation_space.low={}, observation_space.high={}"
-                "".format(env.observation_space.low,
-                          env.observation_space.high))
+                f"Observation space 'low' and 'high' need to be finite. Got: observation_space.low={env.observation_space.low}, observation_space.high={env.observation_space.high}"
+            )
 
         shape = env.observation_space.shape
         dtype = env.observation_space.dtype
@@ -56,11 +56,10 @@ class RescaleObservation(gym.ObservationWrapper):
             low=self.low, high=self.high, shape=shape, dtype=dtype)
 
     def observation(self, observation):
-        rescaled_observation = rescale_values(
+        return rescale_values(
             observation,
             old_low=self.env.observation_space.low,
             old_high=self.env.observation_space.high,
             new_low=self.low,
-            new_high=self.high)
-
-        return rescaled_observation
+            new_high=self.high,
+        )

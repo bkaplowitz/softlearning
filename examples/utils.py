@@ -19,7 +19,7 @@ AVAILABLE_UNIVERSES = tuple(env_utils.UNIVERSES)
 def add_ray_init_args(parser):
 
     def init_help_string(help_string):
-        return help_string + " Passed to `ray.init`."
+        return f"{help_string} Passed to `ray.init`."
 
     parser.add_argument(
         '--cpus',
@@ -55,7 +55,7 @@ def add_ray_init_args(parser):
 def add_ray_tune_args(parser):
 
     def tune_help_string(help_string):
-        return help_string + " Passed to `tune.run`."
+        return f"{help_string} Passed to `tune.run`."
 
     parser.add_argument(
         '--resources-per-trial',

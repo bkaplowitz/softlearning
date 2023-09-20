@@ -26,12 +26,11 @@ def compute_Q_targets(next_Q_values,
     next_values = next_Q_values - entropy_scale * next_log_pis
     terminals = tf.cast(terminals, next_values.dtype)
 
-    Q_targets = td_targets(
+    return td_targets(
         rewards=reward_scale * rewards,
         discounts=discount,
-        next_values=(1.0 - terminals) * next_values)
-
-    return Q_targets
+        next_values=(1.0 - terminals) * next_values,
+    )
 
 
 def heuristic_target_entropy(action_space):
@@ -280,14 +279,15 @@ class SAC(RLAlgorithm):
         policy_losses = self._update_actor(batch)
         alpha_losses = self._update_alpha(batch)
 
-        diagnostics = OrderedDict((
-            ('Q_value-mean', tf.reduce_mean(Qs_values)),
-            ('Q_loss-mean', tf.reduce_mean(Qs_losses)),
-            ('policy_loss-mean', tf.reduce_mean(policy_losses)),
-            ('alpha', tf.convert_to_tensor(self._alpha)),
-            ('alpha_loss-mean', tf.reduce_mean(alpha_losses)),
-        ))
-        return diagnostics
+        return OrderedDict(
+            (
+                ('Q_value-mean', tf.reduce_mean(Qs_values)),
+                ('Q_loss-mean', tf.reduce_mean(Qs_losses)),
+                ('policy_loss-mean', tf.reduce_mean(policy_losses)),
+                ('alpha', tf.convert_to_tensor(self._alpha)),
+                ('alpha_loss-mean', tf.reduce_mean(alpha_losses)),
+            )
+        )
 
     def _do_training(self, iteration, batch):
         training_diagnostics = self._do_updates(batch)

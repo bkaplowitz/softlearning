@@ -156,8 +156,7 @@ class MultiGoalEnv(MujocoEnv, EzPickle):
 
         # penalize staying with the log barriers
         costs = [action_cost, goal_cost]
-        reward = -np.sum(costs)
-        return reward
+        return -np.sum(costs)
 
     def _plot_position_cost(self, ax):
         delta = 0.01
@@ -195,6 +194,4 @@ class PointDynamics(object):
 
     def forward(self, state, action):
         mu_next = state + action
-        state_next = mu_next + self.sigma * \
-            np.random.normal(size=self.s_dim)
-        return state_next
+        return mu_next + self.sigma * np.random.normal(size=self.s_dim)

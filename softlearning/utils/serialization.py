@@ -120,7 +120,7 @@ def register_softlearning_serializable(package='Custom', name=None):
     def decorator(arg):
         """Registers a class with the Softlearning serialization framework."""
         class_name = name if name is not None else arg.__name__
-        registered_name = package + '>' + class_name
+        registered_name = f'{package}>{class_name}'
 
         if inspect.isclass(arg) and not hasattr(arg, 'get_config'):
             raise ValueError(
@@ -128,12 +128,13 @@ def register_softlearning_serializable(package='Custom', name=None):
 
         if registered_name in _GLOBAL_CUSTOM_OBJECTS:
             raise ValueError(
-                '%s has already been registered to %s' %
-                (registered_name, _GLOBAL_CUSTOM_OBJECTS[registered_name]))
+                f'{registered_name} has already been registered to {_GLOBAL_CUSTOM_OBJECTS[registered_name]}'
+            )
 
         if arg in _GLOBAL_CUSTOM_NAMES:
-            raise ValueError('%s has already been registered to %s' %
-                             (arg, _GLOBAL_CUSTOM_NAMES[arg]))
+            raise ValueError(
+                f'{arg} has already been registered to {_GLOBAL_CUSTOM_NAMES[arg]}'
+            )
 
         _GLOBAL_CUSTOM_OBJECTS[registered_name] = arg
         _GLOBAL_CUSTOM_NAMES[arg] = registered_name
@@ -289,7 +290,7 @@ def class_and_config_for_serialized_softlearning_object(
             # This issue does not occur if a string field has a naming conflict with
             # a custom object, since the config of an object will always be a dict.
             deserialized_objects[key] = get_registered_object(item, custom_objects)
-    for key, item in deserialized_objects.items():
+    for key in deserialized_objects:
         cls_config[key] = deserialized_objects[key]
 
     return (cls, cls_config)
@@ -341,9 +342,7 @@ def deserialize_softlearning_object(identifier,
                     f"Unknown {printable_module_name}: {object_name}")
         # Classes passed by name are instantiated with no args, functions are
         # returned as-is.
-        if inspect.isclass(obj):
-            return obj()
-        return obj
+        return obj() if inspect.isclass(obj) else obj
     elif inspect.isfunction(identifier):
         # If a function has already been deserialized, return as is.
         return identifier

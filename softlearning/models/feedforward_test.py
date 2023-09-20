@@ -30,10 +30,14 @@ class FeedforwardTest(tf.test.TestCase):
                 self.assertNotAllClose(variable_1, variable_2)
 
         self.assertEqual(
-            len(set((v1.experimental_ref() for v1 in fn1.trainable_variables))
-                &
-                set((v2.experimental_ref() for v2 in fn2.trainable_variables))),
-            0)
+            len(
+                (
+                    {v1.experimental_ref() for v1 in fn1.trainable_variables}
+                    & {v2.experimental_ref() for v2 in fn2.trainable_variables}
+                )
+            ),
+            0,
+        )
 
         result_1_predict = fn1.predict((x_np, x_np))
         result_2_predict = fn2.predict((x_np, x_np))

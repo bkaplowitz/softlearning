@@ -47,8 +47,6 @@ def convert_dm_control_to_gym_space(dm_control_space):
             (gym_box.shape, dm_control_space.shape))
         return gym_box
     elif isinstance(dm_control_space, specs.Array):
-        if isinstance(dm_control_space, specs.BoundedArray):
-            raise ValueError("The order of the if-statements matters.")
         return spaces.Box(
             low=-float("inf"),
             high=float("inf"),
@@ -116,10 +114,10 @@ class DmControlAdapter(SoftlearningEnv):
             assert domain is None and task is None, (domain, task)
 
         if rescale_action_range:
-            should_rescale = (
+            if should_rescale := (
                 np.any(env.action_spec().minimum != rescale_action_range[0])
-                or np.any(env.action_spec().maximum != rescale_action_range[1]))
-            if should_rescale:
+                or np.any(env.action_spec().maximum != rescale_action_range[1])
+            ):
                 env = action_scale.Wrapper(
                     env,
                     minimum=(
@@ -153,8 +151,8 @@ class DmControlAdapter(SoftlearningEnv):
 
         if len(action_space.shape) > 1:
             raise NotImplementedError(
-                "Shape of the action space ({}) is not flat, make sure to"
-                " check the implemenation.".format(action_space))
+                f"Shape of the action space ({action_space}) is not flat, make sure to check the implemenation."
+            )
 
         self._action_space = action_space
 

@@ -28,9 +28,10 @@ def save_video(video_frames, filename, fps=60, video_format='mp4'):
 
 
 def create_video_grid(col_and_row_frames):
-    video_grid_frames = np.concatenate([
-        np.concatenate(row_frames, axis=-2)
-        for row_frames in col_and_row_frames
-    ], axis=-3)
-
-    return video_grid_frames
+    return np.concatenate(
+        [
+            np.concatenate(row_frames, axis=-2)
+            for row_frames in col_and_row_frames
+        ],
+        axis=-3,
+    )

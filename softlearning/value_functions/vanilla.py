@@ -11,11 +11,7 @@ from .base_value_function import StateActionValueFunction
 
 
 def create_ensemble_value_function(N, value_fn, *args, **kwargs):
-    # TODO(hartikainen): The ensemble Q-function should support the same
-    # interface as the regular ones. Implement the double min-thing
-    # as a Keras layer.
-    value_fns = tuple(value_fn(*args, **kwargs) for i in range(N))
-    return value_fns
+    return tuple(value_fn(*args, **kwargs) for _ in range(N))
 
 
 def double_feedforward_Q_function(*args, **kwargs):
@@ -57,7 +53,6 @@ def feedforward_Q_function(input_shapes,
 
     Q_model = tf.keras.Model(inputs, Q_model_body(out), name=name)
 
-    Q_function = StateActionValueFunction(
-        model=Q_model, observation_keys=observation_keys, name=name)
-
-    return Q_function
+    return StateActionValueFunction(
+        model=Q_model, observation_keys=observation_keys, name=name
+    )

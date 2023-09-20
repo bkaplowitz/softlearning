@@ -50,15 +50,17 @@ class GaussianPolicy(LatentSpacePolicy):
 
         shifts, scales = self.shift_and_scale_model(observations)
 
-        if self._deterministic:
-            actions = self._action_post_processor(shifts)
-        else:
-            actions = self.action_distribution.sample(
+        return (
+            self._action_post_processor(shifts)
+            if self._deterministic
+            else self.action_distribution.sample(
                 batch_shape,
-                bijector_kwargs={'scale': {'scale': scales},
-                                 'shift': {'shift': shifts}})
-
-        return actions
+                bijector_kwargs={
+                    'scale': {'scale': scales},
+                    'shift': {'shift': shifts},
+                },
+            )
+        )
 
     @tf.function(experimental_relax_shapes=True)
     def log_probs(self, observations, actions):
@@ -67,17 +69,17 @@ class GaussianPolicy(LatentSpacePolicy):
 
         shifts, scales = self.shift_and_scale_model(observations)
 
-        if self._deterministic:
-            log_probs = tf.fill(
-                tf.concat((tf.shape(shifts)[:-1], [1]), axis=0), np.inf)
-        else:
-            log_probs = self.action_distribution.log_prob(
+        return (
+            tf.fill(tf.concat((tf.shape(shifts)[:-1], [1]), axis=0), np.inf)
+            if self._deterministic
+            else self.action_distribution.log_prob(
                 actions,
-                bijector_kwargs={'scale': {'scale': scales},
-                                 'shift': {'shift': shifts}}
+                bijector_kwargs={
+                    'scale': {'scale': scales},
+                    'shift': {'shift': shifts},
+                },
             )[..., tf.newaxis]
-
-        return log_probs
+        )
 
     @tf.function(experimental_relax_shapes=True)
     def probs(self, observations, actions):
@@ -85,17 +87,17 @@ class GaussianPolicy(LatentSpacePolicy):
         observations = self._filter_observations(observations)
         shifts, scales = self.shift_and_scale_model(observations)
 
-        if self._deterministic:
-            probs = tf.fill(
-                tf.concat((tf.shape(shifts)[:-1], [1]), axis=0), np.inf)
-        else:
-            probs = self.action_distribution.prob(
+        return (
+            tf.fill(tf.concat((tf.shape(shifts)[:-1], [1]), axis=0), np.inf)
+            if self._deterministic
+            else self.action_distribution.prob(
                 actions,
-                bijector_kwargs={'scale': {'scale': scales},
-                                 'shift': {'shift': shifts}}
+                bijector_kwargs={
+                    'scale': {'scale': scales},
+                    'shift': {'shift': shifts},
+                },
             )[..., tf.newaxis]
-
-        return probs
+        )
 
     @tf.function(experimental_relax_shapes=True)
     def actions_and_log_probs(self, observations):
@@ -274,16 +276,13 @@ class FeedforwardGaussianPolicy(GaussianPolicy):
         )(shift_and_scale_diag)
         scale = tf.keras.layers.Lambda(
             lambda x: tf.math.softplus(x) + 1e-5)(scale)
-        shift_and_scale_diag_model = tf.keras.Model(inputs, (shift, scale))
-
-        return shift_and_scale_diag_model
+        return tf.keras.Model(inputs, (shift, scale))
 
     def get_config(self):
         base_config = super(FeedforwardGaussianPolicy, self).get_config()
-        config = {
+        return {
             **base_config,
             'hidden_layer_sizes': self._hidden_layer_sizes,
             'activation': self._activation,
             'output_activation': self._output_activation,
         }
-        return config

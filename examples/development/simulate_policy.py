@@ -34,9 +34,7 @@ def parse_args():
                         type=Path,
                         default=None)
 
-    args = parser.parse_args()
-
-    return args
+    return parser.parse_args()
 
 
 def load_variant_progress_metadata(checkpoint_path):
@@ -61,13 +59,9 @@ def load_variant_progress_metadata(checkpoint_path):
 
 
 def load_environment(variant):
-    environment_params = (
-        variant['environment_params']['training']
-        if 'evaluation' in variant['environment_params']
-        else variant['environment_params']['training'])
+    environment_params = variant['environment_params']['training']
 
-    environment = get_environment_from_params(environment_params)
-    return environment
+    return get_environment_from_params(environment_params)
 
 
 def load_policy(checkpoint_dir, variant, environment):

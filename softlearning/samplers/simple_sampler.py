@@ -37,7 +37,7 @@ class SimpleSampler(BaseSampler):
                         terminal,
                         next_observation,
                         info):
-        processed_observation = {
+        return {
             'observations': observation,
             'actions': action,
             'rewards': np.atleast_1d(reward),
@@ -45,8 +45,6 @@ class SimpleSampler(BaseSampler):
             'next_observations': next_observation,
             'infos': info,
         }
-
-        return processed_observation
 
     def sample(self):
         if self._is_first_step:

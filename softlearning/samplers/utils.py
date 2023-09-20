@@ -76,5 +76,4 @@ def rollout(environment,
 
 
 def rollouts(n_paths, *args, **kwargs):
-    paths = [rollout(*args, **kwargs) for i in range(n_paths)]
-    return paths
+    return [rollout(*args, **kwargs) for _ in range(n_paths)]

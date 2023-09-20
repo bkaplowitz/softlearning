@@ -10,9 +10,7 @@ def parse_args():
     parser.add_argument('archive_path', type=str, default=None, nargs='?')
     parser.add_argument('--unarchive', action='store_true', default=False)
     parser.add_argument('--dry', action='store_true', default=False)
-    args = parser.parse_args()
-
-    return args
+    return parser.parse_args()
 
 
 def archive_gs(args):

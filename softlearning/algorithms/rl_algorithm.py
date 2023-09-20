@@ -137,8 +137,7 @@ class RLAlgorithm(Checkpointable):
 
     @property
     def _total_timestep(self):
-        total_timestep = self._epoch * self._epoch_length + self._timestep
-        return total_timestep
+        return self._epoch * self._epoch_length + self._timestep
 
     def train(self, *args, **kwargs):
         """Initiate training of the SAC instance."""
@@ -163,7 +162,7 @@ class RLAlgorithm(Checkpointable):
             update_diagnostics = []
 
             start_samples = self.sampler._total_samples
-            for i in count():
+            for _ in count():
                 samples_now = self.sampler._total_samples
                 self._timestep = samples_now - start_samples
 
@@ -343,7 +342,7 @@ class RLAlgorithm(Checkpointable):
 
         diagnostics = [
             self._do_training(iteration=timestep, batch=self._training_batch())
-            for i in range(self._n_train_repeat)
+            for _ in range(self._n_train_repeat)
         ]
 
         diagnostics = tree.map_structure(
@@ -366,15 +365,12 @@ class RLAlgorithm(Checkpointable):
         return {}
 
     def __getstate__(self):
-        state = {
+        return {
             '_epoch_length': self._epoch_length,
-            '_epoch': (
-                self._epoch + int(self._timestep >= self._epoch_length)),
+            '_epoch': (self._epoch + int(self._timestep >= self._epoch_length)),
             '_timestep': self._timestep % self._epoch_length,
             '_num_train_steps': self._num_train_steps,
         }
-
-        return state
 
     def __setstate__(self, state):
         self.__dict__.update(state)

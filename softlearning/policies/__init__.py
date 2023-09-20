@@ -78,13 +78,11 @@ def get(identifier):
     """
     if identifier is None:
         return None
-    if isinstance(identifier, str):
-        return deserialize(identifier)
-    elif isinstance(identifier, dict):
+    if isinstance(identifier, (str, dict)):
         return deserialize(identifier)
     elif callable(identifier):
         return identifier
     else:
         raise TypeError(
-            f"Could not interpret policy function identifier:"
-            " {repr(identifier)}.")
+            'Could not interpret policy function identifier: {repr(identifier)}.'
+        )
